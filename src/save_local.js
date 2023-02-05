@@ -1,15 +1,12 @@
-export function loadAllGuesses() {
-  const storedGuesses = localStorage.getItem("guesses");
-  return storedGuesses != null ? JSON.parse(storedGuesses) : {};
+export function loadScore() {
+  const savedScore = localStorage.getItem("score");
+  return savedScore != null ? savedScore : 0;
 }
 
-export function saveGuesses(dayString, guesses) {
-  const allGuesses = loadAllGuesses();
+export function saveScore(score) {
+  const lastScore = loadScore();
   localStorage.setItem(
-    "guesses",
-    JSON.stringify({
-      ...allGuesses,
-      [dayString]: guesses,
-    })
+    "score",
+    parseInt(score)
   );
 }

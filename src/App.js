@@ -3,21 +3,13 @@ import { useState, useMemo, useEffect } from "react";
 import styled from 'styled-components';
 import AnswerBox from './components/AnswerBox';
 import { getDistance, getCompassDirection } from "geolib";
-import seedrandom from 'seedrandom';
-import { DateTime } from "luxon";
 import { useGuesses } from './hooks/useGuesses';
 import { ToastContainer, Flip } from "react-toastify";
-import { StatsModal } from "./components/StatsModal";
-import { HowToModal } from './components/HowToModal';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from "react-toastify";
 import { FlagGrid } from './components/FlagGrid';
 import { Guesses } from './components/Guesses';
-import AdSpace from './components/AdSpace';
-import Button from '@mui/material/Button';
-import angleIcon from './angle_favicon.svg';
-import cerebrleIcon from './cerebrle_favicon.svg';
-import wikiguesserIcon from './wikiguesser_favicon.svg';
+import { useScore } from './hooks/useScore';
 
 const CentreWrapper = styled.div`
   margin: 0;
@@ -55,7 +47,7 @@ const Footer = styled.div`
   display: block;
   font-size: 1rem;
   margin-top: auto;
-  margin-bottom: 0.5rem;
+  margin-bottom: 2rem;
   span {
     color: #1a76d2;
   }
@@ -71,14 +63,13 @@ const Footer = styled.div`
   }
 `;
 
-const AdContainer = styled.div`
+const ScoreTag = styled.div`
   width: 100%;
-  margin-top: auto;
-  bottom: 0px;
   display: flex;
   justify-content: center;
   flex-direction: column; 
   align-items: center;
+  font-size: 3vh;
   gap: 10px;
   @media (prefers-color-scheme: dark) {
     color: #fff;
@@ -109,43 +100,28 @@ const Title = styled.div`
   }
 `;
 
-const Icon = styled.img`
-  width: 20px;
-  margin-right: 10px;
-`;
 
-const GameButton = styled(Button)`
-  span {
-    font-weight: bold;
-  }
-`;
-
-const GamesContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 5px;
-`;
 
 const shuffle = arr => [...arr].sort(() => 0.5 - Math.random());
 
-const getDayString = () => {
-  const date = DateTime.now().toFormat("yyyy-MM-dd");
-  return `${date}-${DateTime.now().weekday}`;
-};
 
 function App(props) {
   const [countryNames, setFlagNames] = useState(() => Object.keys(props.countryData));
-  const [score, setScore] = useState("DNF");
+  const [score, addPoint] = useScore()
   const [flippedArray, setFlippedArray] = useState([false, false, false, false, false, false]);
   const [randomOrder, setRandomOrder] = useState(() => shuffle([0,1,2,3,4,5]));
   const [end, setEnd] = useState(false);
-  const dayString = useMemo(getDayString, []);
-  const [guesses, addGuess] = useGuesses(dayString);
+  const [guesses, addGuess] = useGuesses();
   const trueCountry = useMemo(() => {
-    const todaysCountry = countryNames[Math.floor(seedrandom.alea(dayString)() * countryNames.length)];
+    const todaysCountry = countryNames[Math.floor(Math.random() * countryNames.length)];
     if (todaysCountry === "Russia") return "Ukraine";
     return todaysCountry
-  }, [dayString, countryNames]);
+  }, [countryNames]);
+
+  
+  function refreshPage() {
+    window.location.reload(false);
+  }
 
   useEffect(() => {
     revealTiles();
@@ -155,11 +131,14 @@ function App(props) {
       setFlippedArray([true, true, true, true, true, true]);
       if (guesses[guesses.length - 1].distance === 0) {
         toast(`🎉 ${trueCountry} 🎉`);
-        setScore(guesses.lenght);
+        addPoint()
+        console.log("Acertou!")
       } else {
         toast(`🤔 ${trueCountry} 🤔`);
-        setScore("DNF");
       }
+      setTimeout(() =>{
+        refreshPage();
+      }, 2000);
     } 
   }, [guesses]);
 
@@ -206,6 +185,7 @@ function App(props) {
               tile: tileNum});
   };
 
+
   const countryInfo = useMemo(() => props.countryData[trueCountry], [trueCountry]);
 
   return (
@@ -218,22 +198,8 @@ function App(props) {
       />
       <CentreWrapper>
         <TitleBar>
-          <TitleBarDiv justify="flex-end">
-            <HowToModal>
-            </HowToModal>
-          </TitleBarDiv>
-          <Title>FLAG<span>LE</span></Title>
-          <TitleBarDiv>
-            <StatsModal end={end}
-              score={score}
-              guesses={guesses}
-              maxAttempts={props.attempts}
-              dayString={dayString}
-              countryInfo={countryInfo}
-              trueCountry={trueCountry}
-            >
-            </StatsModal>
-          </TitleBarDiv>
+          <TitleBarDiv justify="flex-end"/>
+          <Title>FLAG<span>LE</span> UNLIMITED</Title>
         </TitleBar>
         <FlagGrid
           end={end}
@@ -249,23 +215,14 @@ function App(props) {
           countries={Object.keys(props.countryData)}
           onGuess={onGuess}
         />
-        <Attempts score={score} attempts={guesses.length} max={props.attempts} />
+        <Attempts attempts={guesses.length} max={props.attempts} />
         <Guesses
           guesses={guesses}
         />
-        <AdContainer>
-          <div style={{marginTop: "5px"}}>Our other games:</div>
-          <GamesContainer>
-            <GameButton variant="outlined" onClick={() => {window.open("https://wikilinks.app")}}><span>{"[ ] WikiLinks"}</span></GameButton>
-            <GameButton variant="outlined" onClick={() => {window.open("https://wikiguesser.io")}}><Icon src={wikiguesserIcon}/><span>Wikiguesser</span></GameButton>
-          </GamesContainer>
-          <GamesContainer>
-            <GameButton variant="outlined" onClick={() => {window.open("https://cerebrle.io")}}><Icon src={cerebrleIcon}/><span>Cerebrle</span></GameButton>
-            <GameButton variant="outlined" onClick={() => {window.open("https://angle.wtf")}}><Icon src={angleIcon}/><span>Angle</span></GameButton>
-          </GamesContainer>
-          <a className="nn-cmp-show" href="#">Manage Cookie Settings</a>
-          <AdSpace />
-        </AdContainer>
+
+        <ScoreTag>Score: {score}</ScoreTag>
+
+        <Footer>A fork from @ryanbarouki/flagle but unlimited! Made with &hearts; by @leojacondev</Footer>
       </CentreWrapper>
     </div>
   );
