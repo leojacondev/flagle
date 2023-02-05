@@ -114,7 +114,6 @@ function App(props) {
   const [guesses, addGuess] = useGuesses();
   const trueCountry = useMemo(() => {
     const todaysCountry = countryNames[Math.floor(Math.random() * countryNames.length)];
-    if (todaysCountry === "Russia") return "Ukraine";
     return todaysCountry
   }, [countryNames]);
 

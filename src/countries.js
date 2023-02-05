@@ -489,11 +489,6 @@ const countryData = {
         "latitude": 53.41291,
         "longitude": -8.24389
     },
-    "Israel": {
-        "code": "il",
-        "latitude": 31.046051,
-        "longitude": 34.851612
-    },
     "Isle of Man": {
         "code": "im",
         "latitude": 54.236107,
