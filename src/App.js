@@ -132,7 +132,6 @@ function App(props) {
       if (guesses[guesses.length - 1].distance === 0) {
         toast(`🎉 ${trueCountry} 🎉`);
         addPoint()
-        console.log("Acertou!")
       } else {
         toast(`🤔 ${trueCountry} 🤔`);
       }
@@ -222,7 +221,7 @@ function App(props) {
 
         <ScoreTag>Score: {score}</ScoreTag>
 
-        <Footer>A fork from @ryanbarouki/flagle but unlimited! Made with &hearts; by @leojacondev</Footer>
+        <Footer>A fork from @ryanbarouki/flagle but unlimited! Made with &hearts; by @leojacondev for @loonapastel!</Footer>
       </CentreWrapper>
     </div>
   );

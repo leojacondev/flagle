@@ -4,7 +4,6 @@ export function loadScore() {
 }
 
 export function saveScore(score) {
-  const lastScore = loadScore();
   localStorage.setItem(
     "score",
     parseInt(score)
